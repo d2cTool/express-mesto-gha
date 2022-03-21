@@ -1,0 +1,20 @@
+### Get Cards
+GET http://localhost:3000/cards
+
+### Create card
+POST http://localhost:3000/cards
+Content-Type: application/json
+
+{
+  "name":"Mesto2",
+  "link":"http://mesto2.ru"
+}
+
+### Delete card
+DELETE  http://localhost:3000/cards/6238504dbf0fb97ed5b6c9ae
+
+### Like card
+PUT  http://localhost:3000/cards/6238504dbf0fb97ed5b6c9ae/likes
+
+### Dislike card
+DELETE  http://localhost:3000/cards/6238504dbf0fb97ed5b6c9ae/likes
