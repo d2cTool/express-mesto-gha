@@ -6,8 +6,8 @@ POST http://localhost:3000/cards
 Content-Type: application/json
 
 {
-  "name":"1",
-  "link":"http://mesto2.ru"
+  "name":"4",
+  "link":"http://mesto4.ru"
 }
 
 ### Delete card

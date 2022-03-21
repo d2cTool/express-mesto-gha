@@ -26,8 +26,9 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InvalidArgumentsError('Переданы некорректные данные при создании пользователя'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -37,8 +38,9 @@ const getUserById = (req, res, next) => {
     .then((user) => {
       if (user) {
         res.send({ data: user });
+      } else {
+        next(new NotFoundError('Пользователь по указанному _id не найден'));
       }
-      next(new NotFoundError('Пользователь по указанному _id не найден'));
     })
     .catch((err) => next(err));
 };
@@ -47,7 +49,7 @@ const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User
-    .findById(req.params.userId)
+    .findById(req.user._id)
     .then((user) => {
       if (user) {
         User
@@ -56,17 +58,21 @@ const updateUser = (req, res, next) => {
             { name, about },
             {
               new: true,
+              runValidators: true,
+              upsert: false,
             },
           )
-          .then(() => res.send({ data: user }))
+          .then((usr) => res.send({ data: usr }))
           .catch((err) => {
             if (err.name === 'ValidationError') {
               next(new InvalidArgumentsError('Переданы некорректные данные при обновлении профиля'));
+            } else {
+              next(err);
             }
-            next(err);
           });
+      } else {
+        next(new NotFoundError('Пользователь с указанным _id не найден'));
       }
-      next(new NotFoundError('Пользователь с указанным _id не найден'));
     })
     .catch((err) => next(err));
 };
@@ -74,7 +80,7 @@ const updateUser = (req, res, next) => {
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User
-    .findById(req.params.userId)
+    .findById(req.user._id)
     .then((user) => {
       if (user) {
         User
@@ -85,15 +91,17 @@ const updateAvatar = (req, res, next) => {
               new: true, runValidators: true,
             },
           )
-          .then(() => res.send({ data: user }))
+          .then((usr) => res.send({ data: usr }))
           .catch((err) => {
             if (err.name === 'ValidationError') {
               next(new InvalidArgumentsError('Переданы некорректные данные при обновлении профиля'));
+            } else {
+              next(err);
             }
-            next(err);
           });
+      } else {
+        next(new NotFoundError('Пользователь с указанным _id не найден'));
       }
-      next(new NotFoundError('Пользователь с указанным _id не найден'));
     })
     .catch((err) => next(err));
 };

@@ -18,8 +18,9 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InvalidArgumentsError('Переданы некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -32,8 +33,9 @@ const deleteCard = (req, res, next) => {
           .findByIdAndRemove(req.params.cardId)
           .then(() => res.send({ data: card }))
           .catch((err) => next(err));
+      } else {
+        next(new NotFoundError('Карточка с указанным _id не найдена'));
       }
-      next(new NotFoundError('Карточка с указанным _id не найдена'));
     })
     .catch((err) => next(err));
 };
@@ -49,15 +51,17 @@ const likeCard = (req, res, next) => {
             { $addToSet: { likes: req.user._id } },
             { new: true },
           )
-          .then(() => res.send({ data: card }))
+          .then((likes) => res.send({ data: likes }))
           .catch((err) => {
             if (err.name === 'ValidationError') {
               next(new InvalidArgumentsError('Переданы некорректные данные для постановки лайка'));
+            } else {
+              next(err);
             }
-            next(err);
           });
+      } else {
+        next(new NotFoundError('Передан несуществующий _id карточки'));
       }
-      next(new NotFoundError('Передан несуществующий _id карточки'));
     });
 };
 
@@ -75,11 +79,13 @@ const dislikeCard = (req, res, next) => {
           .catch((err) => {
             if (err.name === 'ValidationError') {
               next(new InvalidArgumentsError('Переданы некорректные данные для снятии лайка'));
+            } else {
+              next(err);
             }
-            next(err);
           });
+      } else {
+        next(new NotFoundError('Передан несуществующий _id карточки'));
       }
-      next(new NotFoundError('Передан несуществующий _id карточки'));
     });
 };
 
