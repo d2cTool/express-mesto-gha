@@ -9,7 +9,7 @@ POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "name":"User1",
+  "name":"1",
   "about":"About User1",
   "avatar":"http://user1.avatar"
 }

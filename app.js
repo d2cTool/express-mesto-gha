@@ -20,5 +20,6 @@ app.use((req, res, next) => {
   next();
 });
 app.use('/', indexRouter);
+app.use((err, req, res, next) => res.status(err.statusCode).send({ message: err.message }));
 
 app.listen(PORT, () => console.log(`App listening on port: ${PORT}`));

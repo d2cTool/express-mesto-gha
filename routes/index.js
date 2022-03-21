@@ -1,12 +1,11 @@
 const router = require('express').Router();
 const userRouter = require('./users');
 const cardRouter = require('./cards');
+const { route } = require('./users');
 
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
-router.use((req, res) => {
-  res.status(404).send({ message: 'Что-то пошло не так' });
-});
+router.use((req, res) => res.status(404).send({ message: 'Что-то пошло не так' }));
 
 module.exports = router;
