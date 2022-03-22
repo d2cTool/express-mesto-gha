@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const InvalidArgumentsError = require('../errors/invalidArgumentsError');
 const NotFoundError = require('../errors/notFoundError');
 const User = require('../models/user');
@@ -33,16 +34,23 @@ const createUser = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  User
-    .findById(req.params.userId)
-    .then((user) => {
-      if (user) {
-        res.send({ data: user });
-      } else {
-        next(new NotFoundError('Пользователь по указанному _id не найден'));
-      }
-    })
-    .catch((err) => next(err));
+  if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+    next(new InvalidArgumentsError('Передан некорректный _id пользователя'));
+  } else {
+    User
+      .findById(req.params.userId)
+      .then((user) => {
+        if (user) {
+          res.send({ data: user });
+        } else {
+          next(new NotFoundError('Пользователь по указанному _id не найден'));
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        next(err);
+      });
+  }
 };
 
 const updateUser = (req, res, next) => {

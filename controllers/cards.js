@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const InvalidArgumentsError = require('../errors/invalidArgumentsError');
 const NotFoundError = require('../errors/notFoundError');
 const Card = require('../models/card');
@@ -25,68 +26,80 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card
-    .findById(req.params.cardId)
-    .then((card) => {
-      if (card) {
-        Card
-          .findByIdAndRemove(req.params.cardId)
-          .then(() => res.send({ data: card }))
-          .catch((err) => next(err));
-      } else {
-        next(new NotFoundError('Карточка с указанным _id не найдена'));
-      }
-    })
-    .catch((err) => next(err));
+  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
+    next(new InvalidArgumentsError('Передан некорректный _id карточки'));
+  } else {
+    Card
+      .findById(req.params.cardId)
+      .then((card) => {
+        if (card) {
+          Card
+            .findByIdAndRemove(req.params.cardId)
+            .then(() => res.send({ data: card }))
+            .catch((err) => next(err));
+        } else {
+          next(new NotFoundError('Карточка с указанным _id не найдена'));
+        }
+      })
+      .catch((err) => next(err));
+  }
 };
 
 const likeCard = (req, res, next) => {
-  Card
-    .findById(req.params.cardId)
-    .then((card) => {
-      if (card) {
-        Card
-          .findByIdAndUpdate(
-            req.params.cardId,
-            { $addToSet: { likes: req.user._id } },
-            { new: true },
-          )
-          .then((likes) => res.send({ data: likes }))
-          .catch((err) => {
-            if (err.name === 'ValidationError') {
-              next(new InvalidArgumentsError('Переданы некорректные данные для постановки лайка'));
-            } else {
-              next(err);
-            }
-          });
-      } else {
-        next(new NotFoundError('Передан несуществующий _id карточки'));
-      }
-    });
+  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
+    next(new InvalidArgumentsError('Передан некорректный _id карточки'));
+  } else {
+    Card
+      .findById(req.params.cardId)
+      .then((card) => {
+        if (card) {
+          Card
+            .findByIdAndUpdate(
+              req.params.cardId,
+              { $addToSet: { likes: req.user._id } },
+              { new: true },
+            )
+            .then((likes) => res.send({ data: likes }))
+            .catch((err) => {
+              if (err.name === 'ValidationError') {
+                next(new InvalidArgumentsError('Переданы некорректные данные для постановки лайка'));
+              } else {
+                next(err);
+              }
+            });
+        } else {
+          next(new NotFoundError('Передан несуществующий _id карточки'));
+        }
+      });
+  }
 };
 
 const dislikeCard = (req, res, next) => {
-  Card
-    .findById(req.params.cardId)
-    .then((card) => {
-      if (card) {
-        Card.findByIdAndUpdate(
-          req.params.cardId,
-          { $pull: { likes: req.user._id } },
-          { new: true },
-        )
-          .then((likes) => res.send({ data: likes }))
-          .catch((err) => {
-            if (err.name === 'ValidationError') {
-              next(new InvalidArgumentsError('Переданы некорректные данные для снятии лайка'));
-            } else {
-              next(err);
-            }
-          });
-      } else {
-        next(new NotFoundError('Передан несуществующий _id карточки'));
-      }
-    });
+  if (!mongoose.Types.ObjectId.isValid(req.params.cardId)) {
+    next(new InvalidArgumentsError('Передан некорректный _id карточки'));
+  } else {
+    Card
+      .findById(req.params.cardId)
+      .then((card) => {
+        if (card) {
+          Card.findByIdAndUpdate(
+            req.params.cardId,
+            { $pull: { likes: req.user._id } },
+            { new: true },
+          )
+            .then((likes) => res.send({ data: likes }))
+            .catch((err) => {
+              if (err.name === 'ValidationError') {
+                next(new InvalidArgumentsError('Переданы некорректные данные для снятии лайка'));
+              } else {
+                next(err);
+              }
+            });
+        } else {
+          next(new NotFoundError('Передан несуществующий _id карточки'));
+        }
+      });
+  }
 };
 
 module.exports = {
