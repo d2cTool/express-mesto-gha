@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const InvalidArgumentsError = require('../errors/invalidArgumentsError');
 const NotFoundError = require('../errors/notFoundError');
 const User = require('../models/user');
@@ -12,6 +13,19 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
+
+  if (!email || !password) {
+    next(new InvalidArgumentsError('Отсутствует email или password пользователя'));
+  }
+
+  User
+    .findOne({ email })
+    .then((user) => {
+      if (user) {
+        next(new ConflictError('Пользователь с указанным email уже существует'));
+      }
+    })
+    .catch((err) => next(err));
 
   User
     .create({
@@ -114,10 +128,21 @@ const updateAvatar = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUser(email, password)
+    .then((usr) => {
+      const token = jwt.sign({ _id: usr._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => next(new UnauthorizedError(err.message)));
+};
+
 module.exports = {
   createUser,
   getUsers,
   updateUser,
   updateAvatar,
   getUserById,
+  login,
 };

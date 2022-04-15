@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const indexRouter = require('./routes/index');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
   console.log(req.method, req.path);
   next();
 });
+app.use((/\/((?!sign).)*/, auth));
 app.use('/', indexRouter);
 app.use((err, req, res, next) => res.status(err.statusCode).send({ message: err.message }));
 

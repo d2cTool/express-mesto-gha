@@ -5,13 +5,15 @@ GET http://localhost:3000/users
 GET http://localhost:3000/users/62387570fcf9ffc7d18fa2c55
 
 ### Create user
-POST http://localhost:3000/users
+POST http://localhost:3000/users/signup
 Content-Type: application/json
 
 {
-  "name":"1",
+  "name":"u1",
   "about":"About User1",
-  "avatar":"http://user1.avatar"
+  "avatar":"http://user1.avatar",
+  "email":"u1@u.ru",
+  "password":"u1"
 }
 
 ### Update user
