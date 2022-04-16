@@ -10,6 +10,6 @@ const router = express.Router();
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
-// router.use((req, res) => next(new NotFoundError('Что-то пошло не так')));
+router.use((req, res) => next(new NotFoundError('Something went wrong')));
 
 module.exports = router;
