@@ -1,70 +1,69 @@
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const InvalidArgumentsError = require('../errors/invalidArgumentsError');
 const NotFoundError = require('../errors/notFoundError');
+const ConflictError = require('../errors/conflictError');
+const UnauthorizedError = require('../errors/unauthorizedError');
 const User = require('../models/user');
 
 const getUsers = (req, res, next) => User
-  .find()
+  .find({})
   .then((users) => res.send(users))
   .catch((err) => next(err));
 
-const createUser = (req, res, next) => {
+const getUser = async (req, res, next) => {
+  const userId = req.user._id;
+  try {
+    const usr = await User.findById(userId);
+    if (usr) {
+      res.send(usr);
+    } else {
+      throw new NotFoundError('User is not found');
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+const createUser = async (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
 
-  if (!email || !password) {
-    next(new InvalidArgumentsError('Отсутствует email или password пользователя'));
+  const user = await User.findOne({ email });
+  if (user) {
+    next(new ConflictError('User already exist'));
   }
 
-  User
-    .findOne({ email })
-    .then((user) => {
-      if (user) {
-        next(new ConflictError('Пользователь с указанным email уже существует'));
-      }
-    })
-    .catch((err) => next(err));
-
-  User
-    .create({
+  try {
+    const newUser = new User({
       name, about, avatar, email, password,
-    })
-    .then((user) => res.status(200).send({
-      _id: user._id,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-      email: user.email,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new InvalidArgumentsError('Переданы некорректные данные при создании пользователя'));
-      } else {
-        next(err);
-      }
     });
+
+    await User.create(newUser);
+    await res.send({
+      user: {
+        id: newUser._id,
+        name,
+        about,
+        avatar,
+        email,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const getUserById = (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
-    next(new InvalidArgumentsError('Передан некорректный _id пользователя'));
-  } else {
-    User
-      .findById(req.params.userId)
-      .then((user) => {
-        if (user) {
-          res.send({ data: user });
-        } else {
-          next(new NotFoundError('Пользователь по указанному _id не найден'));
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        next(err);
-      });
-  }
+  User
+    .findById(req.params.userId)
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+      } else {
+        next(new NotFoundError('User is not found'));
+      }
+    })
+    .catch((err) => next(err));
 };
 
 const updateUser = (req, res, next) => {
@@ -85,15 +84,9 @@ const updateUser = (req, res, next) => {
             },
           )
           .then((usr) => res.send({ data: usr }))
-          .catch((err) => {
-            if (err.name === 'ValidationError') {
-              next(new InvalidArgumentsError('Переданы некорректные данные при обновлении профиля'));
-            } else {
-              next(err);
-            }
-          });
+          .catch((err) => next(err));
       } else {
-        next(new NotFoundError('Пользователь с указанным _id не найден'));
+        next(new NotFoundError('User is not found'));
       }
     })
     .catch((err) => next(err));
@@ -114,15 +107,9 @@ const updateAvatar = (req, res, next) => {
             },
           )
           .then((usr) => res.send({ data: usr }))
-          .catch((err) => {
-            if (err.name === 'ValidationError') {
-              next(new InvalidArgumentsError('Переданы некорректные данные при обновлении профиля'));
-            } else {
-              next(err);
-            }
-          });
+          .catch((err) => next(err));
       } else {
-        next(new NotFoundError('Пользователь с указанным _id не найден'));
+        next(new NotFoundError('User is not found'));
       }
     })
     .catch((err) => next(err));
@@ -130,7 +117,8 @@ const updateAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUser(email, password)
+  return User
+    .findUser(email, password)
     .then((usr) => {
       const token = jwt.sign({ _id: usr._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
@@ -145,4 +133,5 @@ module.exports = {
   updateAvatar,
   getUserById,
   login,
+  getUser,
 };

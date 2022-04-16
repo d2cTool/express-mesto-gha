@@ -1,20 +1,25 @@
 ### Get Cards
 GET http://localhost:3000/cards
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjVhZjViZjgwMDNmYWNiY2UyYTI1Y2QiLCJpYXQiOjE2NTAxMjgzODcsImV4cCI6MTY1MDczMzE4N30.BKnKXOdON7ewV7EFbweTb88nf7uIYUSymxG9rBik3tY
 
 ### Create card
 POST http://localhost:3000/cards
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjVhZjViZjgwMDNmYWNiY2UyYTI1Y2QiLCJpYXQiOjE2NTAxMjgzODcsImV4cCI6MTY1MDczMzE4N30.BKnKXOdON7ewV7EFbweTb88nf7uIYUSymxG9rBik3tY
 
 {
-  "name":"4",
-  "link":"http://mesto4.ru"
+  "name":"100",
+  "link":"http://sto.ru"
 }
 
 ### Delete card
-DELETE  http://localhost:3000/cards/6238504dbf0fb97ed5b6c8ae
+DELETE  http://localhost:3000/cards/625af6a48003facbce2a25dd
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU5Yzk1ZjA1NmQ1YjIyYTU1YjM1NzIiLCJpYXQiOjE2NTAwOTI5NzAsImV4cCI6MTY1MDY5Nzc3MH0.ETFE0VY_IwSIZHnATDaok8aQz5uFWoNWGeoWQWzxRH0
+
 
 ### Like card
-PUT  http://localhost:3000/cards/6238504dbf0fb97ed5b6c8ae/likes
+PUT  http://localhost:3000/cards/625af6a48003facbce2a25dd/likes
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjVhZjViZjgwMDNmYWNiY2UyYTI1Y2QiLCJpYXQiOjE2NTAxMjgzODcsImV4cCI6MTY1MDczMzE4N30.BKnKXOdON7ewV7EFbweTb88nf7uIYUSymxG9rBik3tY
 
 ### Dislike card
 DELETE  http://localhost:3000/cards/6238504dbf0fb97ed5b6c9ae/likes

@@ -1,14 +1,12 @@
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
-const { ObjectId } = require('mongoose').Types;
 
 exports.signUpValidation = celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    // name: Joi.string().min(2).max(30),
-    // about: Joi.string().min(2).max(30),
-    // avatar: Joi.string().custom((u) => validator.isURL(u)),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri(),
   }),
 });
 
@@ -19,52 +17,34 @@ exports.signInValidation = celebrate({
   }),
 });
 
-exports.patchUserMeValidation = celebrate({
+exports.userInfoValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
   }),
 });
 
-exports.patchUserAvatarValidation = celebrate({
+exports.userAvatarValidation = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom((value) => validator.isURL(value)),
+    avatar: Joi.string().uri().required(),
   }),
 });
 
-exports.validateCardId = celebrate({
+exports.cardIdValidation = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().custom((value, helpers) => {
-      if (ObjectId.isValid(value)) {
-        return value;
-      }
-      return helpers.message('Невалидный id');
-    }),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 });
 
-exports.createCardValidation = celebrate({
+exports.cardValidation = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30)
-      .messages({
-        'string.min': 'Минимальная длина поля "name" - 2',
-        'string.max': 'Максимальная длина поля "name" - 30',
-        'any.required': 'Поле "password" должно быть заполнено',
-      }),
-    link: Joi.string().required().custom((value, helpers) => {
-      if (validator.isURL(value)) {
-        return value;
-      }
-      return helpers.message('Невалидная ссылка');
-    }),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required(),
   }),
 });
 
 exports.userIdValidation = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().length(24).hex().required()
-      .messages({
-        'any.required': 'Поле "id" должно быть заполнено',
-      }),
+    userId: Joi.string().length(24).hex().required(),
   }),
 });

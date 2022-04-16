@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Некорректный формат токена');
+    throw new UnauthorizedError('Invalid token format');
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -14,7 +14,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'some-secret-key');
   } catch (err) {
-    throw new UnauthorizedError('Невалидный токен');
+    throw new UnauthorizedError('Invalid token');
   }
 
   req.user = payload;

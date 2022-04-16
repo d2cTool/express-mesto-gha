@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -38,25 +39,21 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre('save', (next) => {
-  bcrypt.hash(password, salt)
-    .then((hash) => {
-      this.password = hash;
-      next();
-    })
-    .catch((err) => next(err));
+userSchema.pre('save', function (next) {
+  this.password = bcrypt.hashSync(this.password, salt);
+  next();
 });
 
-userSchema.statics.findUser = (email, password) => {
-  this.findOne({ email })
+userSchema.statics.findUser = function (email, password) {
+  return this.findOne({ email })
     .select('+password')
     .then(async (user) => {
       if (!user) {
-        return Promise.reject(new Error('Некорректная почта или пароль'));
+        return Promise.reject(new Error('Invalid email or password'));
       }
       const matched = await bcrypt.compare(password, user.password);
       if (!matched) {
-        return Promise.reject(new Error('Некорректная почта или пароль'));
+        return Promise.reject(new Error('Invalid email or password'));
       }
       return user;
     });
