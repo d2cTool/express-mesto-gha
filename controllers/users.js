@@ -74,7 +74,6 @@ const updateAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUser(email, password)
-    .orFail(() => new NotFoundError('User is not found'))
     .then((usr) => {
       const token = jwt.sign({ _id: usr._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
