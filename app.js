@@ -14,22 +14,22 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(express.json());
 
-// app.use((req, res, next) => {
-//   console.log(req.method, req.path);
-//   console.dir(req.body);
-//   next();
-// });
-
 app.post('/signup', signUpValidation, createUser);
 app.post('/signin', signInValidation, login);
 
 app.use(auth);
+
 app.use('/', indexRouter);
+
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message });
+  if (err.name === 'ValidationError' || err.name === 'CastError') {
+    res.status(400).send({ message: 'Invalid data' });
+  } else {
+    res.status(statusCode).send({ message });
+  }
   next();
 });
 
-app.listen(PORT, () => console.log(`App listening on port: ${PORT}`));
+app.listen(PORT);

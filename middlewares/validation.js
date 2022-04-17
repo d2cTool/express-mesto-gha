@@ -1,4 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 
 exports.signUpValidation = celebrate({
   body: Joi.object().keys({
@@ -6,7 +7,12 @@ exports.signUpValidation = celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Invalid url');
+    }),
   }),
 });
 
@@ -26,7 +32,12 @@ exports.userInfoValidation = celebrate({
 
 exports.userAvatarValidation = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri().required(),
+    avatar: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Invalid url');
+    }),
   }),
 });
 
@@ -39,7 +50,12 @@ exports.cardIdValidation = celebrate({
 exports.cardValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required(),
+    link: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Invalid url');
+    }),
   }),
 });
 
